@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Profile</title>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; justify-content: center; padding: 20px; }
+    .profile-card { max-width: 400px; width: 100%; border: 1px solid #ccc; padding: 20px; border-radius: 10px; text-align: center; }
+    img { border-radius: 50%; width: 150px; height: 150px; object-fit: cover; }
+    h2, h3 { margin: 10px 0; }
+    .buttons { margin-top: 15px; display: flex; justify-content: space-around; }
+    .buttons a { text-decoration: none; background: #007BFF; color: white; padding: 8px 12px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+<div class="profile-card" id="profileCard">
+  <p>Loading profile...</p>
+</div>
+
+<script>
+  // Get token from URL, e.g. ?token=101John-AA
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  const profileCard = document.getElementById('profileCard');
+
+  if (!token) {
+    profileCard.innerHTML = "<p>No token provided.</p>";
+  } else {
+    const apiURL = `https://script.google.com/macros/s/AKfycbyLoun8XjsPCj-4CLd0vijSswdwiT5fdMtSz-RvOGzFZl25iuvNr8V8zuONLo6uuUYF2Q/exec?token=${token}`;
+
+    fetch(apiURL)
+      .then(res => res.json())
+      .then(data => {
+        if (!data || data.error) {
+          profileCard.innerHTML = "<p>Profile not found.</p>";
+        } else {
+          profileCard.innerHTML = `
+            <img src="${data.photoURL}" alt="Profile Picture">
+            <h2>${data.fullName}</h2>
+            <h3>${data.designation}</h3>
+            <p>Email: <a href="mailto:${data.email}">${data.email}</a></p>
+            <p>Phone: <a href="tel:${data.phone}">${data.phone}</a></p>
+            <div class="buttons">
+              <a href="tel:${data.phone}">Call</a>
+              <a href="mailto:${data.email}">Email</a>
+              <a href="#">LinkedIn</a>
+              <a href="#">Save Contact</a>
+            </div>
+          `;
+        }
+      })
+      .catch(err => {
+        profileCard.innerHTML = "<p>Error loading profile.</p>";
+        console.error(err);
+      });
+  }
+</script>
+
+</body>
+</html>
